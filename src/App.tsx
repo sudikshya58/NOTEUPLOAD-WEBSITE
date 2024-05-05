@@ -1,19 +1,11 @@
-
-import { Route, Routes } from "react-router-dom";
-import { Header } from "./Component/Header";
-import { Home } from "./page/Home";
-
 function App() {
-
   return (
     <>
-      <Routes>
-        <Route path="/" element={<Header/>}/>
-
-     <Route path="/home" element={<Home/>}/>
-      </Routes>
+      <div className="text-center text-4xl font-bold text-blue-800">
+        Sagar Chand Thakuri
+      </div>
     </>
-  )
+  );
 }
 
-export default App
+export default App;
