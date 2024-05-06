@@ -1,3 +1,106 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+.h{
+    border: 2px solid #c71a1a; 
+  }
+.Toastify__toast-container {
+    z-index: 9999; /* Ensure it's above other content */
+    pointer-events: none; /* Allows interaction with elements behind the toast */
+  }
+  
+  /* Style for individual toast notifications */
+  .Toastify__toast {
+    font-family: Arial, sans-serif; /* Use your preferred font */
+    font-size: 14px; /* Adjust font size as needed */
+  }
+  
+  /* Style for the toast message */
+  .Toastify__toast-body {
+    padding: 12px 16px; /* Adjust padding as needed */
+  }
+  
+  /* Style for the success toast */
+  .Toastify__toast--success {
+    background-color: #4caf50; /* Green color for success */
+    color: #fff; /* White text */
+  }
+  
+  /* Style for the error toast */
+  .Toastify__toast--error {
+    background-color: #f44336; /* Red color for error */
+    color: #fff; /* White text */
+  }
+  
+  /* Style for the warning toast */
+  .Toastify__toast--warning {
+    background-color: #ff9800; /* Orange color for warning */
+    color: #fff; /* White text */
+  }
+  
+  /* Style for the info toast */
+  .Toastify__toast--info {
+    background-color: #2196f3; /* Blue color for info */
+    color: #fff; /* White text */
+  }
+  
+  /* Style for the close button */
+  .Toastify__close-button {
+    display: none; /* Hide the close button */
+  }
+/* Style for the toast container */
+.Toastify__toast-container {
+    z-index: 9999; /* Ensure it's above other content */
+    pointer-events: none; /* Allows interaction with elements behind the toast */
+  }
+  
+  /* Style for individual toast notifications */
+  .Toastify__toast {
+    font-family: Arial, sans-serif; /* Use your preferred font */
+    font-size: 14px; /* Adjust font size as needed */
+    position: relative; /* Position for the icon */
+    padding-left: 36px; /* Adjust space for the icon */
+  }
+  
+  /* Style for the toast message */
+  .Toastify__toast-body {
+    padding: 12px 16px; /* Adjust padding as needed */
+  }
+  
+  /* Style for the success toast */
+  .Toastify__toast--success {
+    background-color: #4caf50; /* Green color for success */
+    color: #fff; /* White text */
+  }
+  
+  /* Style for the error toast */
+  .Toastify__toast--error {
+    background-color: #f44336; /* Red color for error */
+    color: #fff; /* White text */
+  }
+  
+  /* Style for the warning toast */
+  .Toastify__toast--warning {
+    background-color: #ff9800; /* Orange color for warning */
+    color: #fff; /* White text */
+  }
+  
+  /* Style for the info toast */
+  .Toastify__toast--info {
+    background-color: #2196f3; /* Blue color for info */
+    color: #fff; /* White text */
+  }
+  
+  /* Style for the close button */
+  .Toastify__close-button {
+    display: none; /* Hide the close button */
+  }
+  
+  /* Style for the icon */
+  .Toastify__icon {
+    position: absolute;
+    top: 50%;
+    left: 12px; /* Adjust the left position of the icon */
+    transform: translateY(-50%);
+  }
+    

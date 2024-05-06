@@ -1,11 +1,21 @@
+
+import { Route, Routes } from "react-router-dom";
+import { Header } from "./Component/Header";
+import { Login } from "./Page/Login";
+import { Password } from "./Component/Password";
+
 function App() {
+
   return (
     <>
-      <div className="text-center text-4xl font-bold text-blue-800">
-        Sagar Chand Thakuri
-      </div>
+      <Routes>
+        <Route path="/" element={<Header/>}/>
+        <Route path="/adminlogin" element={<Login/>}/>
+        <Route path="/passwordlogin" element={<Password/>}/>
+
+      </Routes>
     </>
-  );
+  )
 }
 
-export default App;
+export default App
