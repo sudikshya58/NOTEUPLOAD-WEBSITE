@@ -1,8 +1,9 @@
-import React, { FormEvent, useEffect, useState } from 'react';
+import React, { FormEvent, useEffect, useState } from "react";
 import { Logins } from "../Page/index.js";
 import { db } from "../Component/firebase";
-import { collection, getDocs } from 'firebase/firestore';
-import { useNavigate } from 'react-router-dom';
+import { collection, getDocs } from "firebase/firestore";
+import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 
 interface FormState {
   [key: string]: string;
@@ -17,13 +18,16 @@ interface Login {
 interface AdminData {
   useremail: string;
   username: string;
+  password: string;
   // Add other fields if needed
 }
 
 export const Login = () => {
+  const [formStep, setFormStep] = useState<number>(1); // State to manage form steps
   const [form, setForm] = useState<FormState>({
     useremail: "",
-    username: ""
+    username: "",
+    password: "",
   });
   const [data, setData] = useState<AdminData | null>(null);
 
@@ -40,9 +44,13 @@ export const Login = () => {
     };
     fetchadminDetail();
   }, []);
-  const navigate=useNavigate();
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>, fieldName: string) => {
+  const navigate = useNavigate();
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    fieldName: string
+  ) => {
     const { name, value } = e.target;
     setForm({
       ...form,
@@ -50,47 +58,97 @@ export const Login = () => {
     });
   };
 
-  const handleSubmit = async (e: FormEvent) => {
+  const handleSubmitStep1 = async (e: FormEvent) => {
     e.preventDefault();
 
-    if (!data || form.useremail === "" || form.username === "") {
+    if (form.useremail === "" || form.username === "") {
+      toast.error("Please fill all input fields");
       alert("Please fill all input fields");
       return;
     }
 
-    const matchValue = data.useremail === form.useremail && data.username === form.username;
-    if(matchValue){
-        navigate("/passwordlogin");
-        localStorage.setItem("authToken",data.username);
-        localStorage.setItem("authToken",data.useremail);
+    // Check if email and name match admin data
+    if (
+      data &&
+      data.useremail === form.useremail &&
+      data.username === form.username
+    ) {
+      setFormStep(2); // Move to the next step
+    } else {
+      console.log("Error");
     }
-    else{
-     console.log("Error")
-    }
-    console.log("Match Value:", matchValue);
   };
 
-  console.log(form);
+  const handleSubmitStep2 = async (e: FormEvent) => {
+    e.preventDefault();
+
+    if (data && data.password === form.password) {
+      navigate("/"); // Password is correct, navigate to the desired page
+    } else {
+      toast.error("incorrect password");
+      alert("Incorrect password");
+    }
+  };
 
   return (
-    <div className='flex justify-center items-center h-[100vh] ' >
-      <form onSubmit={handleSubmit} className='flex flex-wrap flex-col bg-white p-10 shadow-lg w-[30%] '>
-        {Logins.map((item: Login, index: number) => (
-          <div key={index} className='flex justify-center items-center p-4 '>
-            <label className='bg-red-300'>{item.username}</label>
-            <input
-              type={item.type}
-              className='w-60 p-3 border outline-none focus:border-blue-300 border-gray-200'
-              placeholder={item.placeholder}
-              value={form[item.formname] || ''}
-              onChange={(e) => handleChange(e, item.formname)}
-            />
-          </div>
-        ))}
-        <div className='flex justify-center items-center'>
-          <button type="submit" className='font-bold mt-10 bg-blue-400 w-60 text-[20px] p-3 rounded-xl'>Submit</button>
-        </div>
-      </form>
-    </div>
+    <>
+      <div className="flex justify-center items-center h-[100vh] ">
+        <form
+          onSubmit={formStep === 1 ? handleSubmitStep1 : handleSubmitStep2}
+          className="flex flex-wrap flex-col bg-white p-10 shadow-lg w-[30%] "
+        >
+          {formStep === 1 && (
+            <>
+              {Logins.map((item: Login, index: number) => (
+                <div
+                  key={index}
+                  className="flex justify-center items-center p-4 "
+                >
+                  <label className="bg-red-300">{item.username}</label>
+                  <input
+                    type={item.type}
+                    className="w-60 p-3 border outline-none focus:border-blue-300 border-gray-200"
+                    placeholder={item.placeholder}
+                    value={form[item.formname] || ""}
+                    onChange={(e) => handleChange(e, item.formname)}
+                  />
+                </div>
+              ))}
+              <div className="flex justify-center items-center">
+                <button
+                  type="submit"
+                  className="font-bold mt-10 bg-blue-400 w-60 text-[20px] p-3 rounded-xl"
+                >
+                  Next
+                </button>
+              </div>
+            </>
+          )}
+
+          {formStep === 2 && (
+            <>
+              <div className="flex justify-center items-center p-4 ">
+                <label className="bg-red-300">Password</label>
+                <input
+                  type="password"
+                  className="w-60 p-3 border outline-none focus:border-blue-300 border-gray-200"
+                  placeholder="Password"
+                  value={form.password}
+                  onChange={(e) => handleChange(e, "password")}
+                />
+              </div>
+              <div className="flex justify-center items-center">
+                <button
+                  type="submit"
+                  className="font-bold mt-10 bg-blue-400 w-60 text-[20px] p-3 rounded-xl"
+                >
+                  Submit
+                </button>
+              </div>
+            </>
+          )}
+        </form>
+      </div>
+    </>
   );
 };
