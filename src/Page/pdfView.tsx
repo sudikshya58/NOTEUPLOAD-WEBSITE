@@ -1,13 +1,12 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { db } from "../Component/firebase";
 import {  doc, getDoc } from "firebase/firestore";
 import { useParams } from "react-router-dom";
-import { PdfComponent } from "../Component/PDdfComponent";
 
 const PdfView = () => {
   const { id } = useParams();
   const [pdfUrl, setPdfUrl] = useState(null);
-  console.log(pdfUrl)
+  const [numPages, setNumPages] = useState(null);
 
   useEffect(() => {
     const fetchPdfUrl = async () => {
@@ -25,10 +24,22 @@ const PdfView = () => {
     fetchPdfUrl();
   }, [id]);
 
+  function onDocumentLoadSuccess({ numPages }) {
+    setNumPages(numPages);
+  }
+
   return (
     <div className="mt-10">
-   {pdfUrl &&   <PdfComponent src={pdfUrl} />}
-   PDFViewer
+      {pdfUrl && (
+        <Document
+          file={pdfUrl}
+          onLoadSuccess={onDocumentLoadSuccess}
+        >
+          {Array.from(new Array(numPages), (el, index) => (
+            <Page key={`page_${index + 1}`} pageNumber={index + 1} />
+          ))}
+        </Document>
+      )}
     </div>
   );
 };

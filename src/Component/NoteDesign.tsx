@@ -2,7 +2,6 @@ import { collection, getDocs } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import { db } from "../Component/firebase";
 import { Link, useNavigate } from "react-router-dom";
-import PDFViewer from "./PDFViewer";
 
 export const NoteDesign = () => {
   const [Note, setNote] = useState([]);
@@ -21,15 +20,16 @@ export const NoteDesign = () => {
 
   return (
     <div className=" mt-28 mb-20  ">
-      <div className="flex flex-wrap h">
+      <div className="flex flex-wrap ">
         {Note.map((item, i) => (
-          <Link to={`/pdfview/${item.id}`} key={item.id}>
+          <Link to={`/pdf/${item.id}`} key={item.id}>
             <div className="mx-6  mt-10">
               <div
                 className="w-72  bg-white border border-gray-100 border-opacity-25 rounded shadow-md"
                 key={i}
               >
-                <div className="">{Note && <PDFViewer src={Note.Files} />}</div>
+                {Note.File}
+                {/* <div className="">{Note && <PDFViewer src={Note.Files} />}</div> */}
 
                 <div className="p-4">
                   <h1 className="font-mediium text-[18px]">Subject Topic</h1>
