@@ -3,7 +3,6 @@ import { useParams } from 'react-router-dom';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../Component/firebase';
 import { pdfjs, Document, Page } from 'react-pdf';
-import Modal from '../Component/Modal';
 
 // Setting worker path
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
@@ -12,9 +11,9 @@ export const Pdf = () => {
   const { id } = useParams();
   const [pdfUrl, setPdfUrl] = useState(null);
   const [numPages, setNumPages] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [pageHeight, setPageHeight] = useState(0);
 
   useEffect(() => {
     const fetchPdfUrl = async () => {
@@ -46,6 +45,10 @@ export const Pdf = () => {
     setNumPages(numPages);
   };
 
+  const handleContentHeight = (height) => {
+    setPageHeight(Math.max(pageHeight, height));
+  };
+
   if (loading) {
     return <p>Loading PDF...</p>;
   }
@@ -57,21 +60,24 @@ export const Pdf = () => {
   return (
     <div className="mt-10">
       {pdfUrl ? (
-        <div>
-          <Modal isOpen={isModalOpen} setIsOpen={setIsModalOpen}>
-            <Document file={pdfUrl} onLoadSuccess={onDocumentLoadSuccess}>
-              {Array.from(new Array(numPages), (el, index) => (
+        <Document file={pdfUrl} onLoadSuccess={onDocumentLoadSuccess}>
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            {Array.from(new Array(numPages), (el, index) => (
+              <div
+                key={`page_${index + 1}`}
+                style={{ height: pageHeight, marginBottom: '0.5rem' }}
+              >
+                <p>Page {index + 1}</p>
                 <Page
-                  key={`page_${index + 1}`}
                   pageNumber={index + 1}
                   width={Math.min(1800, window.innerWidth * 0.9)}
                   renderTextLayer={false}
-                  scale={1}
+                  onLoadSuccess={({ height }) => handleContentHeight(height)}
                 />
-              ))}
-            </Document>
-          </Modal>
-        </div>
+              </div>
+            ))}
+          </div>
+        </Document>
       ) : (
         <p>No PDF URL found</p>
       )}

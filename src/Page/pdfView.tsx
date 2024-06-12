@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { db } from "../Component/firebase";
 import {  doc, getDoc } from "firebase/firestore";
 import { useParams } from "react-router-dom";
+import { Document, Page } from 'react-pdf';
 
 const PdfView = () => {
   const { id } = useParams();
@@ -29,7 +30,7 @@ const PdfView = () => {
   }
 
   return (
-    <div className="mt-10">
+    <div className=" bg-red-300">
       {pdfUrl && (
         <Document
           file={pdfUrl}

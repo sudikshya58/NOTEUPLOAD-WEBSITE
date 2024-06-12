@@ -46,7 +46,7 @@ const Modal = ({
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           onClick={closeModal}
-          className="bg-slate-200/20   p-2 fixed inset-0 z-50 grid place-items-center overflow-y-scroll cursor-pointer"
+          className="bg-slate-200/20   p-2 fixed inset-0 z-50 grid place-items-center  cursor-pointer"
         >
           <motion.div
             initial={{ scale: 0 }}
@@ -54,9 +54,9 @@ const Modal = ({
             exit={{ scale: 0 }}
             onClick={(e) => e.stopPropagation()}
             transition={{ duration: 0.1 }}
-            className={`bg-[#fefefefe] text-gray-900 rounded w-[90%] h-fit max-h-[90%] overflow-scroll shadow-xl cursor-default relative ${maxWidth}`}
+            className={`bg-[#fefefefe] text-gray-900 rounded w-[90%] h-fit max-h-[100%] overflow-scroll shadow-xl cursor-default relative ${maxWidth}`}
           >
-            <div className="relative z-10 h-[90%]">{children}</div>
+            <div className="relative  z-10 h-[100%]">{children}</div>
           </motion.div>
         </motion.div>
       )}
