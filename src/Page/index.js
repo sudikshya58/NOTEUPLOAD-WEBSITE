@@ -1,3 +1,4 @@
+
 export const Logins = [
   {
     name: "Username",
@@ -19,12 +20,7 @@ export const Logins = [
   // }
 ];
 export const Notes = [
-  {
-    name: "Faculty ",
-    placeholder: "faculty",
-    formname: "faculty",
-    type: "string",
-  },
+
   {
     name: "Semester or Year",
     placeholder: "semester or year",
@@ -43,13 +39,22 @@ export const Navitem=[
   path:"/",
 },
 {
-  name:"About",
-  path:"/",
+  name:"About Us",
+  path:"/about",
 },
 {
-  name:"Faculty",
-  path:"/",
+  name:"Contact",
+  path:"/contact",
 },
+{
+  name:"Courses",
+  path:"/course",
+},
+{
+  name:"Login",
+  path:"/login",
+},
+
 ]
 export const FacultyName=[
   {
@@ -72,3 +77,17 @@ export const FacultyName=[
   path:"/",
 }
 ]
+export const DashboardLinks= [
+    {
+        label: "Add Note",
+        path: "/add-note", // Define the correct path for the "Add Note" route
+        icon: ""
+    },
+    {
+      label: "View Note",
+      path: "/add-note", // Define the correct path for the "Add Note" route
+      icon: ""
+  },
+
+];
+

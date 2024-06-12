@@ -14,7 +14,7 @@ export const NoteDesign = () => {
       console.log(Data, "note");
     };
     fetchNotesdata();
-  }, []);
+  }, [])
   const navigate = useNavigate();
   console.log(Note);
 

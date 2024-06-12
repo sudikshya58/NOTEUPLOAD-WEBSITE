@@ -83,7 +83,8 @@ export const Login = () => {
     e.preventDefault();
 
     if (data && data.password === form.password) {
-      navigate("/"); // Password is correct, navigate to the desired page
+  localStorage.setItem("accessToken","ayhskidus");
+      navigate("/dashboard"); // Password is correct, navigate to the desired page
     } else {
       toast.error("incorrect password");
       alert("Incorrect password");
