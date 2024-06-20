@@ -10,11 +10,15 @@ import { ViewNote } from "./Page/ViewNote";
 import { Dashboard } from "./Page/Dashboard";
 import { AddCategory } from "./Page/AddCategory";
 import { FacultyNote } from "./Component/FacultyNote";
+import { Header } from "./Component/Header";
+import { Footer } from "./Component/Footer";
+import { Courses } from "./Page/Courses";
 
 function App() {
 
   return (
     <>
+    <Header/>
       <Routes>
         <Route path="/" element={<Homepage/>}/>
         <Route path="/adminlogin" element={<Login/>}/>
@@ -25,10 +29,12 @@ function App() {
         <Route path="/pdfview/:id" element={<PdfView/>}/>
         <Route path="/pdf/:id" element={<Pdf/>}/>
         <Route path="/dashboard" element={<Dashboard/>}/>
+        <Route path="/course" element={<Courses/>}/>
         <Route path="/faculty/:faculty/notes/:id" element={<FacultyNote/>}/>
 
 
       </Routes>
+      <Footer/>
     </>
   )
 }

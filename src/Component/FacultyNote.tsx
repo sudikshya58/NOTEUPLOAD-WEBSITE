@@ -25,7 +25,10 @@ export const FacultyNote = () => {
 
   return (
     <>
-      <div className=" flex gap-10">
+    <div>
+      <img src="https://static.vecteezy.com/system/resources/thumbnails/008/552/477/small/abstract-banner-background-with-lines-pattern-illustration-free-vector.jpg" className="w-full  h-96"/>
+    </div>
+      <div className="mt-20 mx-20 flex gap-10">
         {facultyData.map((item, index) => (
           <div className=" w-72 shadow-xl h-72 rounded-sm" key={index} >
             <div className="p-2">

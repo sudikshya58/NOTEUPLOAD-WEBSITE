@@ -22,11 +22,12 @@ export const AllNote = () => {
       <h1 className='font-bold text-3xl mb-20'>All Courses Notes</h1>
       <div className='flex flex-wrap  gap-10' >
         {Note.map((item,index)=>(
-          <div key={index} className='flex gap-4  cursor-pointer  border border-gray-100 w-96 h-40 shadow-xl' onClick={()=>navigate(`/faculty/${item.faculty}/notes/${item.id}`)}>
+          <div key={index} className='flex gap-4  c border border-gray-100 w-[26rem] h-52 shadow-xl'>
             <img src="https://img.freepik.com/free-vector/hand-drawn-flat-design-stack-books-illustration_23-2149341898.jpg" alt="" className='w-40' />
             <div className='p-1  mt-2 w-full'>
               <h1 className='font-bold w-48 text-blue-600 mb-2 '>{item.faculty}</h1>
               <p className='w-48 text-[16px] font-medium'>{item.description ? `${item.description.substring(0, 80)}...` : ''}</p>
+              <button className='w-[70%] mt-4 rounded-sm p-2 cursor-pointer text-white font-bold mr-3 bg-blue-300' onClick={()=>navigate(`/faculty/${item.faculty}/notes/${item.id}`)}>View All Note</button>
             </div>
           </div>
         ))}
