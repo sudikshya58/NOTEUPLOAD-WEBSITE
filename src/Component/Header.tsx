@@ -1,8 +1,9 @@
-import { NavLink, useLocation, useParams } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 import { Navitem } from "../Page/index.js";
 import { db } from "../Component/firebase";
 import { useEffect, useState } from "react";
 import { collection, getDocs } from "firebase/firestore";
+import NoteNepal from "../../public/Notes.png";
 
 interface HeaderProps {
   path: string;
@@ -30,13 +31,16 @@ export const Header: React.FC = () => {
   console.log("Fetched faculty data:", faculty);
 
   return (
-    <div className="fixed top-0 left-0 right-0 bg-white shadow-xl z-50">
-      <nav className="p-6">
+    <div className="fixed top-0 left-0 right-0 bg-white shadow-md z-50">
+      <nav className=" p-1 ">
         <ul className="flex justify-between items-center mx-32">
-          <li className="text-2xl font-bold">Logo</li>
-          <li className="flex gap-20 cursor-pointer font-bold">
+          {/* Corrected the image rendering */}
+          <h1 className="h-16 flex justify-between items-center text-[#3f5efb] font-bold w-40 object-cover">Note Bridge</h1>
+         
+
+          <li className="flex gap-20 cursor-pointer   font-bold">
             {Navitem.map((item: HeaderProps, index: number) => (
-              <div key={index} className="relative">
+              <div key={index} className="relative text-[16px]">
                 {item.name === "Courses" ? (
                   <div
                     onMouseEnter={() => setShowDropdown(true)}
@@ -44,8 +48,8 @@ export const Header: React.FC = () => {
                   >
                     <NavLink
                       to={item.path}
-                      className={`px-4 py-2 text-[24px] text-gray-500 hover:text-blue-500 ${
-                        location.pathname === item.path && "bg-blue-600 rounded text-white"
+                      className={`px-4 py-2  text-[16px] text-gray-500  ${
+                        location.pathname === item.path && " bg-[#19467e] rounded text-white"
                       }`}
                     >
                       {item.name}
@@ -66,7 +70,7 @@ export const Header: React.FC = () => {
                 ) : (
                   <NavLink
                     to={item.path}
-                    className={`px-4 py-2 text-[24px] text-gray-500 hover:text-blue-500 ${
+                    className={`px-4 py-2 text-[16px] text-gray-500  ${
                       location.pathname === item.path && "bg-blue-600 rounded text-white"
                     }`}
                   >

@@ -17,16 +17,16 @@ export const AllNote = () => {
   }, []);
   const navigate=useNavigate();
   return (
-    <div className='mt-20'>
+    <div className='mt-10'>
     <div>
-      <h1 className='font-bold text-3xl mb-20'>All Courses Notes</h1>
+      <h1 className='font-bold text-3xl mb-10'>All Courses Notes</h1>
       <div className='flex flex-wrap  gap-10' >
         {Note.map((item,index)=>(
-          <div key={index} className='flex gap-4  c border border-gray-100 w-[26rem] h-52 shadow-xl'>
-            <img src="https://img.freepik.com/free-vector/hand-drawn-flat-design-stack-books-illustration_23-2149341898.jpg" alt="" className='w-40' />
-            <div className='p-1  mt-2 w-full'>
-              <h1 className='font-bold w-48 text-blue-600 mb-2 '>{item.faculty}</h1>
-              <p className='w-48 text-[16px] font-medium'>{item.description ? `${item.description.substring(0, 80)}...` : ''}</p>
+          <div key={index} className='flex gap-4  flex-col sm:flex-row border border-gray-100 w-[27rem]  sm:w-[20rem] sm:h-52 shadow-xl'>
+            <img src="https://img.freepik.com/free-vector/hand-drawn-flat-design-stack-books-illustration_23-2149341898.jpg" alt="" className='md:w-28 w-full h-20 sm:h-full object-cover' />
+            <div className='p-1  mt-2 sm:w-60 w-full'>
+              <h1 className='font-bold w-48  text-blue-600 mb-2 '>{item.faculty}</h1>
+              <p className='md:w-48  w-full text-[16px]  font-medium overflow-hidden'>{item.description ? `${item.description.substring(0, 70)}...` : ''}</p>
               <button className='w-[70%] mt-4 rounded-sm p-2 cursor-pointer text-white font-bold mr-3 bg-blue-300' onClick={()=>navigate(`/faculty/${item.faculty}/notes/${item.id}`)}>View All Note</button>
             </div>
           </div>

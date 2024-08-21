@@ -31,7 +31,8 @@ const PdfView = () => {
 
   return (
     <div className=" bg-red-300">
-      {pdfUrl && (
+      {pdfUrl ?
+       (
         <Document
           file={pdfUrl}
           onLoadSuccess={onDocumentLoadSuccess}
@@ -40,7 +41,7 @@ const PdfView = () => {
             <Page key={`page_${index + 1}`} pageNumber={index + 1} />
           ))}
         </Document>
-      )}
+      ):(<h1>sdddddddddddddddddddd</h1>)}
     </div>
   );
 };

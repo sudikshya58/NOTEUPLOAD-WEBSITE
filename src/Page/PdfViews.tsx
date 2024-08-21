@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../Component/firebase';
 import { pdfjs, Document, Page } from 'react-pdf';
+import Loader from './Loader';
 
 // Setting worker path
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
@@ -16,7 +17,8 @@ export const Pdf = () => {
   const [pageHeight, setPageHeight] = useState(0);
 
   useEffect(() => {
-    const fetchPdfUrl = async () => {
+    const fetchPdfUrl = async () => {   
+setLoading(true);
       try {
         const docRef = doc(db, 'NoteUpload', id);
         const docSnap = await getDoc(docRef);
@@ -43,6 +45,7 @@ export const Pdf = () => {
 
   const onDocumentLoadSuccess = ({ numPages }) => {
     setNumPages(numPages);
+    setLoading(false); // Hide loader when PDF is loaded
   };
 
   const handleContentHeight = (height) => {
@@ -50,7 +53,7 @@ export const Pdf = () => {
   };
 
   if (loading) {
-    return <p>Loading PDF...</p>;
+    return <Loader/>;// Show loader while loading
   }
 
   if (error) {
