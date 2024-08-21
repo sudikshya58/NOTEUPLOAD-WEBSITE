@@ -1,4 +1,3 @@
-import React from 'react'
 import { DashboardHeader } from '../Component/DashboardHeader'
 import { DashboardSidebar } from '../Component/DashboardSidebar'
 

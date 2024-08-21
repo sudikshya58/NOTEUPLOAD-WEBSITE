@@ -1,5 +1,5 @@
 import { collection, getDocs, deleteDoc, doc } from 'firebase/firestore';
-import { db } from "../Component/firebase";
+import { db } from "../Component/firebase.ts";
 import React, { useEffect, useState } from 'react';
 import { AiOutlineDelete } from 'react-icons/ai';
 

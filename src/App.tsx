@@ -10,7 +10,6 @@ import { ViewNote } from "./Page/ViewNote";
 import { Dashboard } from "./Page/Dashboard";
 import { AddCategory } from "./Page/AddCategory";
 import { FacultyNote } from "./Component/FacultyNote";
-import { Footer } from "./Component/Footer";
 import { Courses } from "./Page/Courses";
 
 function App() {

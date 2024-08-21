@@ -1,6 +1,6 @@
 import React from "react";
-import { Banner } from "../Page/index.js";
-import { ContentDoc } from "./index.js";
+import { Banner } from "../Page/index.ts";
+import { ContentDoc } from "./index.ts";
 
 const { title, description } = ContentDoc[0];
 

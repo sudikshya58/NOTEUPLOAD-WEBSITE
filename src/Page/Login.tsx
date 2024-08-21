@@ -1,18 +1,19 @@
 import React, { FormEvent, useEffect, useState } from "react";
-import { Logins } from "../Page/index.js";
+import { Logins } from "./index.js"; // Ensure Logins is correctly typed
 import { db } from "../Component/firebase";
 import { collection, getDocs } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 
+// Define types
 interface FormState {
   [key: string]: string;
 }
 
 interface Login {
-  username: string;
   formname: string;
   type: string;
+  placeholder?: string; // Make placeholder optional
 }
 
 interface AdminData {
@@ -30,19 +31,35 @@ export const Login = () => {
     password: "",
   });
   const [data, setData] = useState<AdminData | null>(null);
+  const [error, setError] = useState<string | null>(null); // For error handling
+  console.log(error);
 
   useEffect(() => {
-    const fetchadminDetail = async () => {
-      const adminDetails = collection(db, "adminlogin");
-      const snapshot = await getDocs(adminDetails);
-      const adminData = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-      console.log(adminData[0]);
-      setData(adminData[0]);
+    const fetchAdminDetails = async () => {
+      try {
+        const adminDetails = collection(db, "adminlogin");
+        const snapshot = await getDocs(adminDetails);
+        const adminData = snapshot.docs.map(doc => {
+          const data = doc.data();
+          return {
+            id: doc.id,
+            useremail: data.useremail as string,
+            username: data.username as string,
+            password: data.password as string,
+          } as AdminData;
+        });
+
+        if (adminData.length > 0) {
+          setData(adminData[0]);
+        } else {
+          setError("No admin data found");
+        }
+      } catch (err) {
+        setError((err as Error).message);
+      }
     };
-    fetchadminDetail();
+
+    fetchAdminDetails();
   }, []);
 
   const navigate = useNavigate();
@@ -51,7 +68,7 @@ export const Login = () => {
     e: React.ChangeEvent<HTMLInputElement>,
     fieldName: string
   ) => {
-    const { name, value } = e.target;
+    const { value } = e.target;
     setForm({
       ...form,
       [fieldName]: value,
@@ -67,7 +84,6 @@ export const Login = () => {
       return;
     }
 
-    // Check if email and name match admin data
     if (
       data &&
       data.useremail === form.useremail &&
@@ -75,6 +91,7 @@ export const Login = () => {
     ) {
       setFormStep(2); // Move to the next step
     } else {
+      toast.error("Invalid credentials");
       console.log("Error");
     }
   };
@@ -83,10 +100,10 @@ export const Login = () => {
     e.preventDefault();
 
     if (data && data.password === form.password) {
-  localStorage.setItem("accessToken","ayhskidus");
+      localStorage.setItem("accessToken", "ayhskidus");
       navigate("/dashboard"); // Password is correct, navigate to the desired page
     } else {
-      toast.error("incorrect password");
+      toast.error("Incorrect password");
       alert("Incorrect password");
     }
   };
@@ -101,15 +118,12 @@ export const Login = () => {
           {formStep === 1 && (
             <>
               {Logins.map((item: Login, index: number) => (
-                <div
-                  key={index}
-                  className="flex justify-center items-center p-4 "
-                >
-                  <label className="bg-red-300">{item.username}</label>
+                <div key={index} className="flex justify-center items-center p-4 ">
+                  <label className="bg-red-300">{item.formname}</label>
                   <input
                     type={item.type}
                     className="w-60 p-3 border outline-none focus:border-blue-300 border-gray-200"
-                    placeholder={item.placeholder}
+                    placeholder={item.placeholder || ""} // Handle optional placeholder
                     value={form[item.formname] || ""}
                     onChange={(e) => handleChange(e, item.formname)}
                   />

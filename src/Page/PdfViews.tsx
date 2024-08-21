@@ -1,30 +1,41 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { doc, getDoc } from 'firebase/firestore';
-import { db } from '../Component/firebase';
+import { db } from '../Component/firebase'; // Correct path without `.ts`
 import { pdfjs, Document, Page } from 'react-pdf';
 import Loader from './Loader';
 
 // Setting worker path
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
-export const Pdf = () => {
-  const { id } = useParams();
-  const [pdfUrl, setPdfUrl] = useState(null);
-  const [numPages, setNumPages] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [pageHeight, setPageHeight] = useState(0);
+// Type definitions
+interface PdfData {
+  Files: string;
+}
+
+interface OnDocumentLoadSuccessProps {
+  numPages: number;
+}
+
+export const Pdf: React.FC = () => {
+  const { id } = useParams<{ id: string }>();
+  const [pdfUrl, setPdfUrl] = useState<string | null>(null);
+  const [numPages, setNumPages] = useState<number | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  const [pageHeight, setPageHeight] = useState<number>(0);
 
   useEffect(() => {
-    const fetchPdfUrl = async () => {   
-setLoading(true);
+    const fetchPdfUrl = async () => {
+      setLoading(true);
       try {
+        if (!id) {
+          throw new Error('ID is missing');
+        }
         const docRef = doc(db, 'NoteUpload', id);
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
-          const pdfData = docSnap.data();
-          // Assuming the PDF URL is stored in the 'Files' field of the document
+          const pdfData = docSnap.data() as PdfData;
           if (pdfData && pdfData.Files) {
             setPdfUrl(pdfData.Files);
           } else {
@@ -34,7 +45,7 @@ setLoading(true);
           throw new Error('Document does not exist');
         }
       } catch (error) {
-        setError(error.message);
+        setError((error as Error).message);
       } finally {
         setLoading(false);
       }
@@ -43,17 +54,17 @@ setLoading(true);
     fetchPdfUrl();
   }, [id]);
 
-  const onDocumentLoadSuccess = ({ numPages }) => {
+  const onDocumentLoadSuccess = ({ numPages }: OnDocumentLoadSuccessProps) => {
     setNumPages(numPages);
     setLoading(false); // Hide loader when PDF is loaded
   };
 
-  const handleContentHeight = (height) => {
+  const handleContentHeight = (height: number) => {
     setPageHeight(Math.max(pageHeight, height));
   };
 
   if (loading) {
-    return <Loader/>;// Show loader while loading
+    return <Loader />; // Show loader while loading
   }
 
   if (error) {
@@ -65,7 +76,7 @@ setLoading(true);
       {pdfUrl ? (
         <Document file={pdfUrl} onLoadSuccess={onDocumentLoadSuccess}>
           <div style={{ display: 'flex', flexDirection: 'column' }}>
-            {Array.from(new Array(numPages), (el, index) => (
+            {numPages && Array.from({ length: numPages }, (_, index) => (
               <div
                 key={`page_${index + 1}`}
                 style={{ height: pageHeight, marginBottom: '0.5rem' }}
