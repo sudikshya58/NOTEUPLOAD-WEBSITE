@@ -110,29 +110,30 @@ export const Login = () => {
 
   return (
     <>
-      <div className="flex justify-center items-center h-[100vh] ">
+      <div className="flex justify-center items-center h-screen px-4 py-10">
         <form
           onSubmit={formStep === 1 ? handleSubmitStep1 : handleSubmitStep2}
-          className="flex flex-wrap flex-col bg-white p-10 shadow-lg w-[30%] "
+          className="flex flex-col bg-white p-6 sm:p-10 w-full max-w-md mx-auto shadow-lg rounded-lg"
         >
+          <h1 className="text-blue-400 font-bold text-xl text-center mb-6">Admin Login</h1>
           {formStep === 1 && (
             <>
               {Logins.map((item: Login, index: number) => (
-                <div key={index} className="flex justify-center items-center p-4 ">
-                  <label className="bg-red-300">{item.formname}</label>
+                <div key={index} className="mb-4 flex flex-col gap-2">
+                  <label className="font-medium text-base">{item.formname}</label>
                   <input
                     type={item.type}
-                    className="w-60 p-3 border outline-none focus:border-blue-300 border-gray-200"
+                    className="w-full p-3 border border-gray-300 rounded outline-none focus:border-blue-400"
                     placeholder={item.placeholder || ""} // Handle optional placeholder
                     value={form[item.formname] || ""}
                     onChange={(e) => handleChange(e, item.formname)}
                   />
                 </div>
               ))}
-              <div className="flex justify-center items-center">
+              <div className="flex justify-center">
                 <button
                   type="submit"
-                  className="font-bold mt-10 bg-blue-400 w-60 text-[20px] p-3 rounded-xl"
+                  className="font-bold bg-blue-400 w-full sm:w-40 text-white text-lg p-2 rounded hover:bg-blue-500"
                 >
                   Next
                 </button>
@@ -142,20 +143,20 @@ export const Login = () => {
 
           {formStep === 2 && (
             <>
-              <div className="flex justify-center items-center p-4 ">
-                <label className="bg-red-300">Password</label>
+              <div className="mb-4 flex flex-col">
+                <label className="font-medium text-base">Password</label>
                 <input
                   type="password"
-                  className="w-60 p-3 border outline-none focus:border-blue-300 border-gray-200"
+                  className="w-full p-3 border border-gray-300 rounded outline-none focus:border-blue-400"
                   placeholder="Password"
                   value={form.password}
                   onChange={(e) => handleChange(e, "password")}
                 />
               </div>
-              <div className="flex justify-center items-center">
+              <div className="flex justify-center">
                 <button
                   type="submit"
-                  className="font-bold mt-10 bg-blue-400 w-60 text-[20px] p-3 rounded-xl"
+                  className="font-bold bg-blue-400 w-full sm:w-60 text-white text-lg p-3 rounded-xl hover:bg-blue-500"
                 >
                   Submit
                 </button>

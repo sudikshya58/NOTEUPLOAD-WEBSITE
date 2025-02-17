@@ -41,6 +41,11 @@ export const AddNote = () => {
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files && e.target.files[0];
+    if(selectedFile && selectedFile.size >30*1024*1024){
+      toast.error("file size exceeds 30 mb limit");
+      setFile(null);
+      return;
+    }
     setFile(selectedFile);
   };
 
@@ -60,7 +65,10 @@ export const AddNote = () => {
       toast.error("Please fill all fields");
       return;
     }
-
+    if (file && file.size > 30 * 1024 * 1024) { // 30MB in bytes
+      toast.error("File size exceeds 30MB limit.");
+      return;
+    }
     setLoading(true);
 
     try {
