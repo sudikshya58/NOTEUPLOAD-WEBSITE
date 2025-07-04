@@ -7,20 +7,23 @@ import { AiOutlineDownload, AiOutlineEye } from "react-icons/ai";
 import { Footer } from "./Footer";
 import { Header } from "../Component/Header";
 
-// Define a type for the faculty data
+// Faculty note data type
 interface FacultyNoteData {
   id: string;
   faculty: string;
   subject: string;
   semester: string;
-  // Add other fields if needed
+  category?: string; // e.g., "Final Report", "Lecture Note"
+  Files?: string;    // optional if you want to use download
 }
 
 export const FacultyNote = () => {
-  const { faculty } = useParams<{ faculty: string }>(); // Ensure correct typing for params
+  const { faculty } = useParams<{ faculty: string }>();
   const [facultyData, setFacultyData] = useState<FacultyNoteData[]>([]);
-  const [loading, setLoading] = useState<boolean>(true); // Add loading state
-  const [error, setError] = useState<string | null>(null); // Add error state
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  const [selectedSemester, setSelectedSemester] = useState<string>("All");
+  const [selectedCategory, setSelectedCategory] = useState<string>("All");
 
   const navigate = useNavigate();
 
@@ -29,12 +32,12 @@ export const FacultyNote = () => {
       try {
         const facultyCollection = collection(db, "NoteUpload");
         const snapshot = await getDocs(facultyCollection);
-        const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as FacultyNoteData[];
+        const data = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+        })) as FacultyNoteData[];
+
         const filteredData = data.filter(item => item.faculty === faculty);
-
-        console.log("Fetched data:", data);
-        console.log("Filtered data:", filteredData);
-
         setFacultyData(filteredData);
       } catch (error) {
         setError("Failed to fetch data");
@@ -47,13 +50,53 @@ export const FacultyNote = () => {
     fetchFaculty();
   }, [faculty]);
 
+  const filteredNotes = facultyData.filter((item) => {
+    const semesterMatch = selectedSemester === "All" || item.semester === selectedSemester;
+    const categoryMatch = selectedCategory === "All" || item.category === selectedCategory;
+    return semesterMatch && categoryMatch;
+  });
+
+  const uniqueCategories = Array.from(new Set(facultyData.map(note => note.category))).filter(Boolean);
+
   return (
     <>
       <Header />
-      <div>
-        <img src={banner} alt="Banner" className="w-full object-cover h-96" />
+      <img src={banner} alt="Banner" className="w-full object-cover h-96" />
+
+      {/* Filters */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mx-6  lg:mx-20 mt-10 gap-4">
+        <select
+          value={selectedSemester}
+          onChange={(e) => setSelectedSemester(e.target.value)}
+          className="border border-gray-400 p-2 rounded w-full sm:w-auto"
+        >
+          <option value="All">All Semesters</option>
+          {["1st","2nd","3rd","4th","5th","6th","7th","8th"].map((sem) => (
+            <option key={sem} value={sem}>{sem} Semester</option>
+          ))}
+        </select>
+
+        <div className="flex gap-2 flex-wrap justify-center  sm:justify-start">
+          <button
+            onClick={() => setSelectedCategory("All")}
+            className={`px-4 py-1 rounded border ${selectedCategory === "All" ? "bg-blue-500 text-white" : "bg-gray-100"}`}
+          >
+            All Categories
+          </button>
+          {uniqueCategories.map((cat) => (
+            <button
+              key={cat}
+              onClick={() => setSelectedCategory(cat!)}
+              className={`px-4 py-1 rounded border ${selectedCategory === cat ? "bg-blue-500 text-white" : "bg-gray-100"}`}
+            >
+              {cat}
+            </button>
+          ))}
+        </div>
       </div>
-      <div className="mt-20 mx-20 h-full flex gap-10 flex-wrap">
+
+      {/* Notes List */}
+      <div className="mt-10 mx-6 lg:mx-20 flex gap-10 flex-wrap justify-center">
         {loading ? (
           <div className="h-[30vh] flex items-center justify-center text-[20px] font-bold w-full">
             Loading...
@@ -62,40 +105,47 @@ export const FacultyNote = () => {
           <div className="h-[30vh] flex items-center justify-center text-[20px] font-bold w-full">
             {error}
           </div>
-        ) : facultyData.length > 0 ? (
-          facultyData.map((item) => (
-            <div className="w-72 shadow-xl h-72 rounded-sm" key={item.id}>
-              <div className="p-2">
-                <figure>
-                  <img
-                    src="https://gdm-catalog-fmapi-prod.imgix.net/ProductLogo/45c5a96e-2f3c-4e42-9bb4-4c53426965ec.png"
-                    alt="Subject"
-                    className="h-40 w-full object-cover"
-                  />
-                </figure>
-                <div className="p-2">
-                  <div className="flex justify-between items-center mt-4">
-                    <h1 className="font-bold text-[20px]">{item.subject}</h1>
-                    <h1>{item.semester}</h1>
-                  </div>
-                  <div className="flex justify-between mt-4">
-                    <h1
-                      className="flex gap-2 font-medium cursor-pointer items-center"
-                      onClick={() => navigate(`/pdf/${item.id}`)}
+        ) : filteredNotes.length > 0 ? (
+          filteredNotes.map((item) => (
+            <div className="w-72 shadow-lg rounded-lg overflow-hidden bg-white" key={item.id}>
+              <img
+                src="https://img.icons8.com/fluency/96/pdf.png"
+                alt="Note thumbnail"
+                className="h-40 w-full object-contain bg-gray-50 p-4"
+              />
+              <div className="p-4">
+                <h2 className="font-semibold text-lg text-black">{item.subject}</h2>
+                <p className="text-gray-600 text-sm mb-1">{item.semester} Semester</p>
+                {item.category && (
+                  <p className="text-sm text-white px-2 py-1 bg-blue-400 inline-block rounded">
+                    {item.category}
+                  </p>
+                )}
+                <div className="flex justify-between mt-4">
+                  <button
+                    className="flex items-center gap-1 text-black font-medium"
+                    onClick={() => navigate(`/pdf/${item.id}`)}
+                  >
+                    <AiOutlineEye size={20} /> View
+                  </button>
+                  {item.Files && (
+                    <a
+                      href={item.Files}
+                      download
+                      target="_blank"
+                      rel="noreferrer"
+                      className="flex items-center gap-1 text-black font-medium"
                     >
-                      <AiOutlineEye color="blue" size={24} /> View Notes
-                    </h1>
-                    <h1 className="flex gap-2 font-medium cursor-pointer items-center">
-                      <AiOutlineDownload color="blue" size={24} /> Download
-                    </h1>
-                  </div>
+                      <AiOutlineDownload size={20} /> Download
+                    </a>
+                  )}
                 </div>
               </div>
             </div>
           ))
         ) : (
           <div className="h-[30vh] flex items-center justify-center text-[20px] font-bold w-full">
-            No data available
+            No notes available for selected filters.
           </div>
         )}
       </div>

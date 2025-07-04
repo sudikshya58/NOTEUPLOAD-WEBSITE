@@ -10,7 +10,7 @@ export const Homepage = () => {
   <Header/>
   <div>
 
-  <div className="mx-6 lg:mx-20 sm:mx-10">
+  <div className="mx-6 lg:mx-20 sm:mx-10 mt-28">
   <Banner2/>
   <AllNote/>
   </div>

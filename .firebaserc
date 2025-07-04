@@ -1,8 +1,5 @@
 {
   "projects": {
-    "default": "noteupload-346ee",
-    "staging": "noteupload-346ee"
-  },
-  "targets": {},
-  "etags": {}
+    "default": "noteupload-346ee"
+  }
 }
