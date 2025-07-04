@@ -1,4 +1,4 @@
-import { NavLink, useLocation } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import { Navitem } from "../Page/index.ts";
 import { db } from "./firebase";
 import { useEffect, useState } from "react";
@@ -13,17 +13,19 @@ export const Header: React.FC = () => {
   const [showDropdown, setShowDropdown] = useState(false);
   const [faculty, setFaculty] = useState<FacultyItem[]>([]);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const location = useLocation();
 
   useEffect(() => {
     const fetchFaculty = async () => {
       try {
         const facultyCollection = collection(db, "Faculty");
         const snapshot = await getDocs(facultyCollection);
-        const data = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...(doc.data() as FacultyItem),
-        }));
+        const data = snapshot.docs.map((doc) => {
+          const docData = doc.data() as Omit<FacultyItem, "id">;
+          return {
+            id: doc.id,
+            ...docData,
+          };
+        });
         setFaculty(data);
       } catch (error) {
         console.error("Error fetching faculty data:", error);
@@ -119,7 +121,6 @@ export const Header: React.FC = () => {
           <ul className="flex flex-col font-bold text-gray-700">
             {Navitem.map((item, index) => (
               <li key={index} className="border-b border-gray-200">
-                {/* If item is "Courses" show collapsible submenu */}
                 {item.name === "Courses" ? (
                   <MobileCoursesDropdown faculty={faculty} closeMenu={() => setMobileMenuOpen(false)} />
                 ) : (
@@ -144,6 +145,7 @@ export const Header: React.FC = () => {
   );
 };
 
+// Mobile Courses Dropdown
 interface MobileCoursesDropdownProps {
   faculty: FacultyItem[];
   closeMenu: () => void;
