@@ -39,9 +39,9 @@ export const Header: React.FC = () => {
     <header className="fixed top-0 left-0 right-0 bg-white shadow-md z-50">
       <nav className="container mx-auto px-4 py-3 flex items-center justify-between">
         {/* Logo */}
-        <h1 className="text-[#3f5efb] font-bold text-xl md:text-2xl">
+        <NavLink to="/" className="text-[#3f5efb] font-bold text-xl md:text-2xl">
           Note Bridge
-        </h1>
+        </NavLink>
 
         {/* Desktop Menu */}
         <ul className="hidden md:flex gap-8 font-bold text-gray-700 items-center">
