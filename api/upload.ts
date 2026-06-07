@@ -22,16 +22,28 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   try {
     const form = new IncomingForm();
-    const [, files] = await form.parse(req);
-    const file = Array.isArray(files.file) ? files.file[0] : files.file;
+    const [fields, files] = await form.parse(req);
 
+    const file = Array.isArray(files.file) ? files.file[0] : files.file;
     if (!file) return res.status(400).json({ error: 'No file uploaded' });
+
+    // ✅ Get structure info from form fields
+    const level = fields.level?.[0] || 'General';
+    const faculty = fields.faculty?.[0] || 'General';
+    const semester = fields.semester?.[0] || '';
+    const subject = fields.subject?.[0] || 'Unknown';
+
+    // ✅ Create organized filename like: Bachelor_CSIT_1stSem_CProgramming.pdf
+    const organizedName = [level, faculty, semester, subject]
+      .filter(Boolean)
+      .join('_')
+      .replace(/\s+/g, '_') + '.pdf';
 
     const drive = google.drive({ version: 'v3', auth });
 
     const response = await drive.files.create({
       requestBody: {
-        name: file.originalFilename || 'upload.pdf',
+        name: organizedName,
         mimeType: 'application/pdf',
         parents: [process.env.GOOGLE_DRIVE_FOLDER_ID!],
       },
@@ -46,10 +58,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     await drive.permissions.create({
       fileId,
-      requestBody: {
-        role: 'reader',
-        type: 'anyone',
-      },
+      requestBody: { role: 'reader', type: 'anyone' },
     });
 
     const previewUrl = `https://drive.google.com/file/d/${fileId}/preview`;

@@ -4,6 +4,7 @@ import { addDoc, collection, getDocs } from "firebase/firestore";
 import toast from "react-hot-toast";
 
 interface FormState {
+  level: string;       // ✅ added
   faculty: string;
   semester?: string;
   subject: string;
@@ -12,6 +13,7 @@ interface FormState {
 }
 
 const initialFormState: FormState = {
+  level: "",           // ✅ added
   faculty: "",
   semester: "",
   subject: "",
@@ -24,30 +26,16 @@ interface Faculty {
   faculty: string;
 }
 
+// ✅ Faculties based on level
+const FACULTY_OPTIONS: Record<string, string[]> = {
+  Bachelor: ["CSIT", "BCA", "BBS", "BIM", "BE", "BE Civil"],
+  Master: ["MCSIT", "MBA", "MBS", "ME"],
+};
+
 export const AddNote = () => {
   const [form, setForm] = useState<FormState>(initialFormState);
-  const [facultyList, setFacultyList] = useState<Faculty[] | null>(null);
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
-
-  useEffect(() => {
-    const fetchFaculty = async () => {
-      try {
-        const facultyCollection = collection(db, "Faculty");
-        const snapshot = await getDocs(facultyCollection);
-        const data = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        })) as Faculty[];
-        setFacultyList(data);
-      } catch (error) {
-        toast.error("Failed to load faculties");
-        console.error(error);
-      }
-    };
-
-    fetchFaculty();
-  }, []);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files && e.target.files[0];
@@ -63,14 +51,29 @@ export const AddNote = () => {
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
-    setForm((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+
+    // ✅ Reset faculty when level changes
+    if (name === "level") {
+      setForm((prev) => ({ ...prev, level: value, faculty: "", semester: "" }));
+      return;
+    }
+
+    // ✅ Reset semester when faculty changes
+    if (name === "faculty") {
+      setForm((prev) => ({ ...prev, faculty: value, semester: "" }));
+      return;
+    }
+
+    setForm((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+
+    if (!form.level) {
+      toast.error("Please select a level");
+      return;
+    }
 
     if (!form.faculty) {
       toast.error("Please select a faculty");
@@ -100,9 +103,13 @@ export const AddNote = () => {
     setLoading(true);
 
     try {
-      // ✅ Upload to Google Drive via backend API
+      // ✅ Send all fields to backend
       const formData = new FormData();
       formData.append("file", file);
+      formData.append("level", form.level);
+      formData.append("faculty", form.faculty);
+      formData.append("semester", form.semester || "");
+      formData.append("subject", form.subject);
 
       const response = await fetch("/api/upload", {
         method: "POST",
@@ -112,7 +119,7 @@ export const AddNote = () => {
       if (!response.ok) throw new Error("Upload to Google Drive failed");
       const { url } = await response.json();
 
-      // ✅ Save Drive URL to Firestore
+      // ✅ Save to Firestore with level
       const dataToSubmit = {
         ...form,
         Files: url,
@@ -133,8 +140,9 @@ export const AddNote = () => {
   };
 
   return (
-    <div className="flex justify-center h-[100vh] items-center">
+    <div className="flex justify-center min-h-[100vh] items-center">
       <form onSubmit={handleSubmit} className="shadow-xl border p-20 bg-white rounded-lg w-full max-w-lg">
+
         {/* File Upload */}
         <div className="mb-4 flex flex-col items-center w-full">
           <label className="text-black font-bold mb-3">Upload File</label>
@@ -153,28 +161,42 @@ export const AddNote = () => {
           />
         </div>
 
-        {/* Faculty Dropdown */}
+        {/* ✅ Level Dropdown */}
         <div className="p-4 flex flex-col">
-          <label className="text-black font-bold mb-3">Faculty</label>
+          <label className="text-black font-bold mb-3">Level</label>
           <select
-            name="faculty"
-            value={form.faculty}
+            name="level"
+            value={form.level}
             onChange={handleChange}
             className="p-3 border outline-none focus:border-blue-300 border-gray-200"
           >
-            <option value="">Select Faculty</option>
-            {facultyList &&
-              facultyList.map((f) => (
-                <option key={f.id} value={f.faculty}>
-                  {f.faculty}
-                </option>
-              ))}
+            <option value="">Select Level</option>
+            <option value="Bachelor">Bachelor</option>
+            <option value="Master">Master</option>
             <option value="General">General</option>
           </select>
         </div>
 
-        {/* Semester */}
-        {form.faculty !== "General" && (
+        {/* ✅ Faculty Dropdown - shows based on level */}
+        {form.level && form.level !== "General" && (
+          <div className="p-4 flex flex-col">
+            <label className="text-black font-bold mb-3">Faculty</label>
+            <select
+              name="faculty"
+              value={form.faculty}
+              onChange={handleChange}
+              className="p-3 border outline-none focus:border-blue-300 border-gray-200"
+            >
+              <option value="">Select Faculty</option>
+              {FACULTY_OPTIONS[form.level]?.map((f) => (
+                <option key={f} value={f}>{f}</option>
+              ))}
+            </select>
+          </div>
+        )}
+
+        {/* ✅ Semester - shows only when faculty is selected and not General */}
+        {form.faculty && form.level !== "General" && (
           <div className="p-4 flex flex-col">
             <label className="text-black font-bold mb-3">Semester</label>
             <select
@@ -185,9 +207,7 @@ export const AddNote = () => {
             >
               <option value="">Select Semester</option>
               {["1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th"].map((sem) => (
-                <option key={sem} value={sem}>
-                  {sem} Semester
-                </option>
+                <option key={sem} value={sem}>{sem} Semester</option>
               ))}
             </select>
           </div>
