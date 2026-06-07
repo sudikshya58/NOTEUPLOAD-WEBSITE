@@ -1,10 +1,10 @@
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useState } from "react";
 import { db } from "../Component/firebase.js";
-import { addDoc, collection, getDocs } from "firebase/firestore";
+import { addDoc, collection } from "firebase/firestore";
 import toast from "react-hot-toast";
 
 interface FormState {
-  level: string;       // ✅ added
+  level: string;
   faculty: string;
   semester?: string;
   subject: string;
@@ -13,7 +13,7 @@ interface FormState {
 }
 
 const initialFormState: FormState = {
-  level: "",           // ✅ added
+  level: "",
   faculty: "",
   semester: "",
   subject: "",
@@ -21,12 +21,7 @@ const initialFormState: FormState = {
   Files: "",
 };
 
-interface Faculty {
-  id: string;
-  faculty: string;
-}
-
-// ✅ Faculties based on level
+// Faculties based on level
 const FACULTY_OPTIONS: Record<string, string[]> = {
   Bachelor: ["CSIT", "BCA", "BBS", "BIM", "BE", "BE Civil"],
   Master: ["MCSIT", "MBA", "MBS", "ME"],
@@ -52,13 +47,13 @@ export const AddNote = () => {
   ) => {
     const { name, value } = e.target;
 
-    // ✅ Reset faculty when level changes
+    // Reset faculty and semester when level changes
     if (name === "level") {
       setForm((prev) => ({ ...prev, level: value, faculty: "", semester: "" }));
       return;
     }
 
-    // ✅ Reset semester when faculty changes
+    // Reset semester when faculty changes
     if (name === "faculty") {
       setForm((prev) => ({ ...prev, faculty: value, semester: "" }));
       return;
@@ -70,17 +65,18 @@ export const AddNote = () => {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
 
+    // Validation
     if (!form.level) {
       toast.error("Please select a level");
       return;
     }
 
-    if (!form.faculty) {
+    if (form.level !== "General" && !form.faculty) {
       toast.error("Please select a faculty");
       return;
     }
 
-    if (form.faculty !== "General" && !form.semester) {
+    if (form.level !== "General" && !form.semester) {
       toast.error("Please select a semester");
       return;
     }
@@ -103,11 +99,11 @@ export const AddNote = () => {
     setLoading(true);
 
     try {
-      // ✅ Send all fields to backend
+      // Send to Google Drive API
       const formData = new FormData();
       formData.append("file", file);
       formData.append("level", form.level);
-      formData.append("faculty", form.faculty);
+      formData.append("faculty", form.level === "General" ? "General" : form.faculty);
       formData.append("semester", form.semester || "");
       formData.append("subject", form.subject);
 
@@ -119,16 +115,20 @@ export const AddNote = () => {
       if (!response.ok) throw new Error("Upload to Google Drive failed");
       const { url } = await response.json();
 
-      // ✅ Save to Firestore with level
+      // Save to Firestore
       const dataToSubmit = {
-        ...form,
+        level: form.level,
+        faculty: form.level === "General" ? "General" : form.faculty,
+        semester: form.semester || "",
+        subject: form.subject,
+        category: form.category,
         Files: url,
+        uploadedAt: new Date().toISOString(),
       };
 
       await addDoc(collection(db, "NoteUpload"), dataToSubmit);
 
-      toast.success("Submit success");
-
+      toast.success("Upload successful!");
       setForm(initialFormState);
       setFile(null);
     } catch (error) {
@@ -141,8 +141,10 @@ export const AddNote = () => {
 
   return (
     <div className="flex justify-center min-h-[100vh] items-center">
-      <form onSubmit={handleSubmit} className="shadow-xl border p-20 bg-white rounded-lg w-full max-w-lg">
-
+      <form
+        onSubmit={handleSubmit}
+        className="shadow-xl border p-20 bg-white rounded-lg w-full max-w-lg"
+      >
         {/* File Upload */}
         <div className="mb-4 flex flex-col items-center w-full">
           <label className="text-black font-bold mb-3">Upload File</label>
@@ -161,7 +163,7 @@ export const AddNote = () => {
           />
         </div>
 
-        {/* ✅ Level Dropdown */}
+        {/* Level Dropdown */}
         <div className="p-4 flex flex-col">
           <label className="text-black font-bold mb-3">Level</label>
           <select
@@ -177,7 +179,7 @@ export const AddNote = () => {
           </select>
         </div>
 
-        {/* ✅ Faculty Dropdown - shows based on level */}
+        {/* Faculty Dropdown - only shows for Bachelor/Master */}
         {form.level && form.level !== "General" && (
           <div className="p-4 flex flex-col">
             <label className="text-black font-bold mb-3">Faculty</label>
@@ -189,13 +191,15 @@ export const AddNote = () => {
             >
               <option value="">Select Faculty</option>
               {FACULTY_OPTIONS[form.level]?.map((f) => (
-                <option key={f} value={f}>{f}</option>
+                <option key={f} value={f}>
+                  {f}
+                </option>
               ))}
             </select>
           </div>
         )}
 
-        {/* ✅ Semester - shows only when faculty is selected and not General */}
+        {/* Semester - only shows for Bachelor/Master after faculty selected */}
         {form.faculty && form.level !== "General" && (
           <div className="p-4 flex flex-col">
             <label className="text-black font-bold mb-3">Semester</label>
@@ -206,9 +210,13 @@ export const AddNote = () => {
               className="p-3 border outline-none focus:border-blue-300 border-gray-200"
             >
               <option value="">Select Semester</option>
-              {["1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th"].map((sem) => (
-                <option key={sem} value={sem}>{sem} Semester</option>
-              ))}
+              {["1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th"].map(
+                (sem) => (
+                  <option key={sem} value={sem}>
+                    {sem} Semester
+                  </option>
+                )
+              )}
             </select>
           </div>
         )}
