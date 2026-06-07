@@ -1,8 +1,7 @@
 import { FormEvent, useEffect, useState } from "react";
-import { db, storage } from "../Component/firebase.js";
+import { db } from "../Component/firebase.js";
 import { addDoc, collection, getDocs } from "firebase/firestore";
 import toast from "react-hot-toast";
-import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 
 interface FormState {
   faculty: string;
@@ -27,11 +26,10 @@ interface Faculty {
 
 export const AddNote = () => {
   const [form, setForm] = useState<FormState>(initialFormState);
-  const [facultyList, setFacultyList] = useState<Faculty[] | null>(null);  // renamed from 'faculty' to 'facultyList'
+  const [facultyList, setFacultyList] = useState<Faculty[] | null>(null);
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
-  // Fetch faculty list on mount
   useEffect(() => {
     const fetchFaculty = async () => {
       try {
@@ -51,7 +49,6 @@ export const AddNote = () => {
     fetchFaculty();
   }, []);
 
-  // Handle file input change and validate size
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files && e.target.files[0];
     if (selectedFile && selectedFile.size > 30 * 1024 * 1024) {
@@ -62,7 +59,6 @@ export const AddNote = () => {
     setFile(selectedFile);
   };
 
-  // Handle form input changes
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
@@ -73,17 +69,14 @@ export const AddNote = () => {
     }));
   };
 
-  // Submit handler
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
 
-    // Validation logic
     if (!form.faculty) {
       toast.error("Please select a faculty");
       return;
     }
 
-    // Only require semester if faculty is NOT General
     if (form.faculty !== "General" && !form.semester) {
       toast.error("Please select a semester");
       return;
@@ -107,37 +100,28 @@ export const AddNote = () => {
     setLoading(true);
 
     try {
-      // Upload file to Firebase Storage with better async handling
-      const storageRef = ref(storage, `files/${Date.now()}_${file.name}`);
-      const uploadTask = uploadBytesResumable(storageRef, file);
+      // ✅ Upload to Google Drive via backend API
+      const formData = new FormData();
+      formData.append("file", file);
 
-      // Wrap upload in Promise for easier await
-      const fileUrl: string = await new Promise((resolve, reject) => {
-        uploadTask.on(
-          "state_changed",
-          null, // can add progress callback here if you want
-          (error) => {
-            toast.error("File upload failed");
-            reject(error);
-          },
-          async () => {
-            const url = await getDownloadURL(uploadTask.snapshot.ref);
-            resolve(url);
-          }
-        );
+      const response = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
       });
 
-      // Prepare full data with uploaded file url
+      if (!response.ok) throw new Error("Upload to Google Drive failed");
+      const { url } = await response.json();
+
+      // ✅ Save Drive URL to Firestore
       const dataToSubmit = {
         ...form,
-        Files: fileUrl,
+        Files: url,
       };
 
       await addDoc(collection(db, "NoteUpload"), dataToSubmit);
 
       toast.success("Submit success");
 
-      // Reset form & file but DO NOT reset facultyList
       setForm(initialFormState);
       setFile(null);
     } catch (error) {
@@ -163,6 +147,7 @@ export const AddNote = () => {
           <input
             id="file-upload"
             type="file"
+            accept="application/pdf"
             onChange={handleFileChange}
             className="hidden"
           />
@@ -184,12 +169,11 @@ export const AddNote = () => {
                   {f.faculty}
                 </option>
               ))}
-            {/* Add General option */}
             <option value="General">General</option>
           </select>
         </div>
 
-        {/* Conditionally render semester only if faculty is NOT General */}
+        {/* Semester */}
         {form.faculty !== "General" && (
           <div className="p-4 flex flex-col">
             <label className="text-black font-bold mb-3">Semester</label>
@@ -209,7 +193,7 @@ export const AddNote = () => {
           </div>
         )}
 
-        {/* Subject input */}
+        {/* Subject */}
         <div className="p-4 flex flex-col">
           <label className="text-black font-bold mb-3">Subject</label>
           <input
@@ -222,7 +206,7 @@ export const AddNote = () => {
           />
         </div>
 
-        {/* Category Dropdown */}
+        {/* Category */}
         <div className="p-4 flex flex-col">
           <label className="text-black font-bold mb-3">Category</label>
           <select
@@ -247,7 +231,7 @@ export const AddNote = () => {
             loading ? "cursor-not-allowed opacity-50" : ""
           }`}
         >
-          {loading ? "Submitting..." : "Submit"}
+          {loading ? "Uploading to Google Drive..." : "Submit"}
         </button>
       </form>
     </div>

@@ -1,4 +1,5 @@
 import { AllNote } from '../Component/AllNote'
+import { BachelorPage } from '../Component/Bachelorpage'
 import { Footer } from '../Component/Footer'
 import { Header } from '../Component/Header'
 
@@ -9,7 +10,9 @@ export const Courses = () => {
         <img src="" className='w-4full h-96'/>
         <div className='mx-20'>
         <AllNote/>
+      
         </div>
+          <BachelorPage/>
         <Footer/>
     </div>
   )
