@@ -1,7 +1,6 @@
 import { google } from 'googleapis';
 import { IncomingForm } from 'formidable';
 import fs from 'fs';
-import type { VercelRequest, VercelResponse } from '@vercel/node';
 
 export const config = {
   api: { bodyParser: false },
@@ -15,7 +14,7 @@ const auth = new google.auth.GoogleAuth({
   scopes: ['https://www.googleapis.com/auth/drive.file'],
 });
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
+export default async function handler(req: any, res: any) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
@@ -27,13 +26,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const file = Array.isArray(files.file) ? files.file[0] : files.file;
     if (!file) return res.status(400).json({ error: 'No file uploaded' });
 
-    // ✅ Get structure info from form fields
     const level = fields.level?.[0] || 'General';
     const faculty = fields.faculty?.[0] || 'General';
     const semester = fields.semester?.[0] || '';
     const subject = fields.subject?.[0] || 'Unknown';
 
-    // ✅ Create organized filename like: Bachelor_CSIT_1stSem_CProgramming.pdf
     const organizedName = [level, faculty, semester, subject]
       .filter(Boolean)
       .join('_')
